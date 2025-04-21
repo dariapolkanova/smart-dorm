@@ -7,7 +7,7 @@ import time
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 
-CREDENTIALS_FILE = 'private-key.json'
+CREDENTIALS_FILE = '.venv/private-key.json'
 
 spreadsheetId = "17LBXa55bGpy8w4rdPIw0OIKGJmwNDRUFAQjNZWvcL3U"
 
