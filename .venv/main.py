@@ -18,7 +18,7 @@ dp.include_router(user_router)
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job('cron', hour=17, minute=41)
+@scheduler.scheduled_job('cron', hour=1, minute=00)
 async def scheduled_job():
     await update_table()
 

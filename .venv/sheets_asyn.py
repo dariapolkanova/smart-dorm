@@ -9,6 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 CREDENTIALS_FILE = 'private-key.json'
 
+
 spreadsheetId = "17LBXa55bGpy8w4rdPIw0OIKGJmwNDRUFAQjNZWvcL3U"
 
 def get_creds():
@@ -66,3 +67,4 @@ async def update_table():
         await worksheet.update([[data[i + 30][3], data[i + 30][4], data[i + 30][5], data[i + 30][6]]],
                                f"D{i + 2}:G{i + 2}")
         await delete_data(i + 30)
+

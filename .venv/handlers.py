@@ -76,8 +76,8 @@ async def process_choose_time(callback: types.CallbackQuery, state: FSMContext):
     tomorrow_date = date.today() + timedelta(1)
     tom_date_to_str = tomorrow_date.strftime("%d.%m.%Y")
 
-    await state.set_state(AddEntry.day)
-    await state.update_data(day=action)
+    # await state.set_state(AddEntry.day)
+    # await state.update_data(day=action)
 
     if action == "today":
         builder = InlineKeyboardBuilder()
@@ -85,7 +85,7 @@ async def process_choose_time(callback: types.CallbackQuery, state: FSMContext):
         for i in range(0, len(time_data)):
             if time_data[i][1] == curr_date_to_str and time_data[i][3] == '0':
                 builder.button(text=f"№{time_data[i][0]}  {time_data[i][2]}",
-                               callback_data=f"time_{i}_{time_data[i][2]}_{time_data[i][0]}")
+                               callback_data=f"time_{i}_{time_data[i][2]}_{time_data[i][0]}_today")
                 count = count + 1
 
         builder.button(text="Сменить день", callback_data="choose_time_tomorrow")
@@ -100,7 +100,7 @@ async def process_choose_time(callback: types.CallbackQuery, state: FSMContext):
         for i in range(0, len(time_data)):
             if time_data[i][1] == tom_date_to_str and time_data[i][3] == '0':
                 builder.button(text=f"№{time_data[i][0]}  {time_data[i][2]}",
-                               callback_data=f"time_{i}_{time_data[i][2]}_{time_data[i][0]}")
+                               callback_data=f"time_{i}_{time_data[i][2]}_{time_data[i][0]}_tomorrow")
                 count = count + 1
 
         builder.button(text="Сменить день", callback_data="choose_time_today")
@@ -109,12 +109,13 @@ async def process_choose_time(callback: types.CallbackQuery, state: FSMContext):
 
         await callback.message.answer("Свободные окошки на завтра", reply_markup=builder.as_markup())
 
-@user_router.callback_query(AddEntry.day, F.data.startswith('time_'))
+@user_router.callback_query(StateFilter(None), F.data.startswith('time_'))
 async def process_request_name(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.delete()
 
     await state.set_state(AddEntry.id)
     await state.update_data(id=int(callback.data.split("_")[1]), time=callback.data.split("_")[2],
-                            machine=callback.data.split("_")[3])
+                            machine=callback.data.split("_")[3], day=callback.data.split("_")[4])
 
     await callback.message.answer("Введи свою фамилию и имя:")
     await state.set_state(AddEntry.name)
@@ -148,8 +149,11 @@ async def process_add_name(message: types.Message, state: FSMContext):
 
 @user_router.callback_query(StateFilter(None), F.data.startswith('cancel_entry'))
 async def process_delete_entry(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.delete()
+
     index = int(callback.data.split("_")[2])
     await delete_data(index)
+
 
     buttons = [
         [types.InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")]
@@ -159,7 +163,8 @@ async def process_delete_entry(callback: types.CallbackQuery, state: FSMContext)
     await callback.message.answer("Запись удалена!", reply_markup=keyboard)
 
 @user_router.callback_query(StateFilter(None), F.data.startswith('confirm_'))
-async def process_delete_entry(callback: types.CallbackQuery, state: FSMContext):
+async def process_confirm_entry(callback: types.CallbackQuery, state: FSMContext):
+    await callback.message.delete()
     index = int(callback.data.split("_")[1])
     await change_status(index)
 
